@@ -1,0 +1,45 @@
+services:
+  mongodb:
+    image: mongo
+    container_name: mongodb
+    hostname: mongodb
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_PASSWORD}
+    ports:
+      - ${MONGO_INITDB_PORT}:27017
+    networks:
+      - mongo
+    volumes:
+      - mongo-data:/data/db
+      - mongo-config:/data/configdb
+
+  mongoexpress:
+    image: mongo-express
+    container_name: mongoexpress
+    hostname: mongoexpress
+    restart: always
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: ${MONGO_INITDB_USERNAME}
+      ME_CONFIG_MONGODB_ADMINPASSWORD: ${MONGO_INITDB_PASSWORD}
+      ME_CONFIG_BASICAUTH_USERNAME: ${MONGO_INITDB_USERNAME}
+      ME_CONFIG_BASICAUTH_PASSWORD: ${MONGO_INITDB_PASSWORD}
+      ME_CONFIG_MONGODB_SERVER: mongodb
+      ME_CONFIG_MONGODB_PORT: ${MONGO_INITDB_PORT}
+    ports:
+      - ${MONGO_CLIENT_PORT}:8081
+    networks:
+      - mongo
+    depends_on:
+      - mongodb
+    links:
+      - mongodb
+
+networks:
+  mongo:
+    driver: bridge
+
+volumes:
+  mongo-data:
+  mongo-config:
